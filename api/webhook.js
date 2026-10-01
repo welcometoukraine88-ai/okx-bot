@@ -1,5 +1,6 @@
 export const config = {
   runtime: 'edge',
+  regions: ['fra1', 'sin1', 'lhr1'], // Франкфурт, Сингапур, Лондон (для обхода гео-блокировки США на OKX)
 };
 
 export default async function handler(req) {
@@ -56,7 +57,7 @@ export default async function handler(req) {
 
     console.log("2. Отправка в OKX:", JSON.stringify(payload));
 
-    // 4. Отправка на оригинальный шлюз OKX через Edge-сеть Vercel
+    // 4. Отправка на OKX из европейского IP Vercel
     const okxResponse = await fetch("https://www.okx.com/algo/signal/trigger", {
       method: "POST",
       headers: {
