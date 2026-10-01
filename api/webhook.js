@@ -5,6 +5,8 @@ export default async function handler(req, res) {
 
   try {
     const bodyText = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    console.log("1. Входящий алерт TradingView:", bodyText);
+
     const textUpper = bodyText.toUpperCase();
 
     // 1. Фильтр сигналов Wyckoff: Upthrust -> SHORT, Spring -> LONG
@@ -14,6 +16,7 @@ export default async function handler(req, res) {
     } else if (textUpper.includes("SPRING")) {
       action = "ENTER_LONG";
     } else {
+      console.log("Игнор: В тексте нет слов UPTHRUST или SPRING");
       return res.status(200).send("Ignored: Signal is not Upthrust or Spring");
     }
 
@@ -47,7 +50,9 @@ export default async function handler(req, res) {
       amount: "2"
     };
 
-    // 4. Отправка ордера на OKX с заголовком User-Agent (обход блокировки OKX)
+    console.log("2. Отправка в OKX:", JSON.stringify(payload));
+
+    // 4. Отправка ордера на OKX с заголовком User-Agent
     const okxResponse = await fetch("https://www.okx.com/algo/signal/trigger", {
       method: "POST",
       headers: { 
@@ -58,11 +63,12 @@ export default async function handler(req, res) {
     });
 
     const responseText = await okxResponse.text();
-    
-    // Всегда возвращаем 200 OK в TradingView, чтобы видеть ответ от OKX в логах
+    console.log("3. Ответ от OKX:", okxResponse.status, responseText);
+
     return res.status(200).send(`OKX Status ${okxResponse.status}: ${responseText}`);
 
   } catch (error) {
+    console.error("Ошибка обработчика:", error);
     return res.status(500).send(`Error processing webhook: ${error.message}`);
   }
 }
