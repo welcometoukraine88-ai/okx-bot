@@ -52,22 +52,12 @@ export default async function handler(req, res) {
 
     console.log("2. Отправка в OKX:", JSON.stringify(payload));
 
-    // 4. Полный комплект заголовков браузера для обхода WAF OKX
-    const okxResponse = await fetch("https://www.okx.com/algo/signal/trigger", {
+    // 4. Отправка через серверный шлюз OKX для AWS (aws.okx.com)
+    const okxResponse = await fetch("https://aws.okx.com/algo/signal/trigger", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
-        "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Origin": "https://www.okx.com",
-        "Referer": "https://www.okx.com/",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Sec-Ch-Ua": '"Not-A.Brand";v="99", "Chromium";v="124", "Google Chrome";v="124"',
-        "Sec-Ch-Ua-Mobile": "?0",
-        "Sec-Ch-Ua-Platform": '"Windows"',
-        "Sec-Fetch-Dest": "empty",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "same-origin"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
       },
       body: JSON.stringify(payload)
     });
