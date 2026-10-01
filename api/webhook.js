@@ -42,7 +42,7 @@ export default async function handler(req, res) {
       action: action,
       instrument: instrument,
       signalToken: "Q85Vbjf/AF+keggcxeK5Nro2ohtegF5rXLBNAAYV/hJj4UJIfzhHYTs6gYH2Ft2uvHd0pQqltQKDNfBYZpYGmA==",
-      timestamp: Date.now().toString(),
+      timestamp: new Date().toISOString(),
       maxLag: "300",
       orderType: "market",
       orderPriceOffset: "",
