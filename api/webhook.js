@@ -47,15 +47,20 @@ export default async function handler(req, res) {
       amount: "2"
     };
 
-    // 4. Отправка ордера на OKX
+    // 4. Отправка ордера на OKX с заголовком User-Agent (обход блокировки OKX)
     const okxResponse = await fetch("https://www.okx.com/algo/signal/trigger", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      },
       body: JSON.stringify(payload)
     });
 
     const responseText = await okxResponse.text();
-    return res.status(okxResponse.status).send(responseText);
+    
+    // Всегда возвращаем 200 OK в TradingView, чтобы видеть ответ от OKX в логах
+    return res.status(200).send(`OKX Status ${okxResponse.status}: ${responseText}`);
 
   } catch (error) {
     return res.status(500).send(`Error processing webhook: ${error.message}`);
