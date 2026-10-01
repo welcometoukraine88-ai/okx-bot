@@ -1,10 +1,12 @@
-export default async function handler(req, res) {
+export const runtime = 'edge';
+
+export default async function handler(req) {
   if (req.method !== 'POST') {
-    return res.status(405).send('Method Not Allowed');
+    return new Response('Method Not Allowed', { status: 405 });
   }
 
   try {
-    const bodyText = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    const bodyText = await req.text();
     console.log("1. Входящий алерт TradingView:", bodyText);
 
     const textUpper = bodyText.toUpperCase();
@@ -17,7 +19,7 @@ export default async function handler(req, res) {
       action = "ENTER_LONG";
     } else {
       console.log("Игнор: В тексте нет слов UPTHRUST или SPRING");
-      return res.status(200).send("Ignored: Signal is not Upthrust or Spring");
+      return new Response("Ignored: Signal is not Upthrust or Spring", { status: 200 });
     }
 
     // 2. Извлечение тикера (например, "CRDOUSDT.P" -> "CRDO-USDT-SWAP")
@@ -52,12 +54,12 @@ export default async function handler(req, res) {
 
     console.log("2. Отправка в OKX:", JSON.stringify(payload));
 
-    // 4. Отправка через серверный шлюз OKX для AWS (aws.okx.com)
-    const okxResponse = await fetch("https://aws.okx.com/algo/signal/trigger", {
+    // 4. Отправка на оригинальный шлюз OKX через Edge-сеть Vercel
+    const okxResponse = await fetch("https://www.okx.com/algo/signal/trigger", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
       },
       body: JSON.stringify(payload)
     });
@@ -65,10 +67,10 @@ export default async function handler(req, res) {
     const responseText = await okxResponse.text();
     console.log("3. Ответ от OKX:", okxResponse.status, responseText);
 
-    return res.status(200).send(`OKX Status ${okxResponse.status}: ${responseText}`);
+    return new Response(`OKX Status ${okxResponse.status}: ${responseText}`, { status: 200 });
 
   } catch (error) {
     console.error("Ошибка обработчика:", error);
-    return res.status(500).send(`Error processing webhook: ${error.message}`);
+    return new Response(`Error processing webhook: ${error.message}`, { status: 500 });
   }
 }
