@@ -58,7 +58,7 @@ export default async function handler(req) {
     console.log("2. Отправка в OKX:", JSON.stringify(payload));
 
     // 4. Отправка на OKX из европейского IP Vercel
-    const okxResponse = await fetch("https://www.okx.com/algo/signal/trigger", {
+    const okxResponse = await fetch("https://corsproxy.io/?" + encodeURIComponent("https://www.okx.com/algo/signal/trigger"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
